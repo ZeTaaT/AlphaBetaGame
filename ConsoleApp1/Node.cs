@@ -10,6 +10,7 @@ namespace NodeSpace {
 
         private float _val;
         private Node[] _nodes;
+        private Node superNode;
         private Move move;
 
         public Node(float value)
@@ -45,20 +46,26 @@ namespace NodeSpace {
             {
                 return _nodes;
             }
-            set
-            {
-                _nodes = value;
-            }
+        }
+        public Node SuperNode 
+        { 
+            get 
+            { 
+                return superNode; 
+            } 
+        }
+        public Move Move 
+        { 
+            get 
+            { 
+                return move; 
+            } 
         }
         public float Val
         {
             get
             {
                 return _val;
-            }
-            set
-            {
-                _val = value;
             }
         }
 

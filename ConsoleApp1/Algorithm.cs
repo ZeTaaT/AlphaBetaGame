@@ -11,87 +11,98 @@ namespace MainStuff
 {
     public class Algorithm
     {
-        static private float negInf = float.NegativeInfinity;
-        static private float posInf = float.PositiveInfinity;
-        static private float winPoint = 10000; //Should be Total points for all pieces
-        static private float maxPoint = 100; //Extreme cutting
-        static private float minPoint = -100; //Extreme cutting
-        public static int checkMove = 0;
+        private float negInf = float.NegativeInfinity;
+        private float posInf = float.PositiveInfinity;
+
+        private float maxPoint = 100; //Extreme cutting
+        private float minPoint = -100; //Extreme cutting
+        public int checkMove = 0;
 
         //Need a list of magic numbers
 
-        static public float alphaBeta(Node root, int depth, float alpha, float beta, bool maximizingPlayer)
+        
+        public Algorithm(float maxPoint, float minPoint)
         {
-            float eva; // The value of the move (Need to implement method of calculating the value of the move)
+            this.maxPoint = maxPoint;
+            this.minPoint = minPoint;
+        }
+        public Algorithm(float winPoint)
+        {
+            maxPoint = winPoint;
+        }
+        public Node alphaBeta(Node root, int depth, float alpha, float beta, bool maximizingPlayer)
+        {
+            Node eva; // The value of the move (Need to implement method of calculating the value of the move)
             
             if (depth == 0 | root.Nodes == null)
             {
                 checkMove++;
                 Console.WriteLine(root.Val);
-                return root.Val;
+                return root;
             }
 
             if (maximizingPlayer == true)  // for Maximizer Player  
             {
 
-                float maxEva = negInf;
+                Node maxEva = new Node(negInf, null);
 
                 foreach (Node node in root.Nodes)
                 {
                     eva = alphaBeta(node, depth - 1, alpha, beta, false);
-                    maxEva = Math.Max(maxEva, eva); // Highest evaluated pointage
-                    alpha = Math.Max(alpha, maxEva); // Highest valid evaluated pointage in whole tree
+                    maxEva = mathEva(maxEva, eva, true); // Highest evaluated pointage
+                    alpha = Math.Max(alpha, maxEva.Val); // Highest valid evaluated pointage in whole tree
                     if (beta <= alpha)
                     {
-                        Console.WriteLine("eva " + eva + " max " + maxEva + " alpha " + alpha);
+                        Console.WriteLine("eva " + eva.Val + " max " + maxEva.Val + " alpha " + alpha);
                         break;
                     }
                 }
-                Console.WriteLine("MaxEva" + maxEva);
+                Console.WriteLine("MaxEva" + maxEva.Val);
                 return maxEva;
 
             }
             else
             {
 
-                float minEva = posInf;
+                Node minEva = new Node(posInf, null);
 
                 foreach (Node node in root.Nodes)
                 {
                     eva = alphaBeta(node, depth - 1, alpha, beta, true);
-                    minEva = Math.Min(minEva, eva);
-                    beta = Math.Min(beta, minEva);
+                    minEva = mathEva(minEva, eva, false);
+                    beta = Math.Min(beta, minEva.Val);
                     if (beta <= alpha)
                     {
-                        Console.WriteLine("eva " + eva + " min " + minEva + " beta " + beta);
+                        Console.WriteLine("eva " + eva.Val + " min " + minEva.Val + " beta " + beta);
                         break;
                     }
 
 
                 }
-                Console.WriteLine("MinEva" + minEva);
+                Console.WriteLine("MinEva" + minEva.Val);
                 return minEva;
             }
         }
-        static void Main(string[] args)
+        private Node mathEva(Node node1, Node node2, bool max)
         {
-            Node[] nodes = new Node[100];
-            Random rnd = new Random();
-            Node node3 = (Node)new Node[] { new Node(12), new Node(12), new Node(12), new Node(12) };
-            Node node4 = (Node)new Node[] { new Node(12), new Node(12), new Node(12), new Node(12) };
-            Node node5 = (Node)new Node[] { new Node(12), new Node(12), new Node(12), new Node(12) };
-
-            for (int i = 0; i < 100; i++)
-            {
-                nodes[i] = new Node(i, null);
+            if (max) {
+                if (node1.Val >= node2.Val) {
+                    return node1;
+                } else {
+                    return node2;
+                }
+            } else {
+                if (node1.Val >= node2.Val)
+                {
+                    return node2;
+                }
+                else
+                {
+                    return node1;
+                }
             }
 
-            Node node1 = new Node(0, new Node[] {node3, node4, node5 });
-            //Input 
-
-            Console.WriteLine("Value " + alphaBeta(node1, node1.Nodes.Length, negInf, posInf, false));
-            Console.WriteLine("Checkmove " + checkMove);
-            Console.WriteLine("Total moves");
         }
+      
     }
 }
