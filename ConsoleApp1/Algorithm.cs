@@ -28,6 +28,7 @@ namespace MainStuff
         }
         public Algorithm(float winPoint)
         {
+            minPoint= -winPoint;
             maxPoint = winPoint;
         }
         public Node alphaBeta(Node root, int depth, float alpha, float beta, bool maximizingPlayer)

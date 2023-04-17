@@ -13,12 +13,14 @@ namespace Objects
         private Move[] moves; //What moves it has
         private float value; //How much a piece is worth
         private char type; //Board representation
+        private bool playerPiece; //Is it a player or the bot
+        public int checkVar;
 
-        public MoveAbles(Move[] moves, float value, char type) { 
+        public MoveAbles(Move[] moves, float value, char type, bool playerPiece) { 
             this.moves = moves;
             this.value = value;
             this.type = type;
-            
+            this.playerPiece= playerPiece;
         }
 
         public Move[] getMoves() 
@@ -33,6 +35,11 @@ namespace Objects
         { 
             return type; 
         }
+        public bool isPlayerPiece()
+        {
+            return playerPiece;
+        }
 
     }
+
 }

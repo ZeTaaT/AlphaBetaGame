@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 namespace NodeSpace {
     public class Node {
 
-        private float _val;
-        private Node[] _nodes;
-        private Node superNode;
-        private Move move;
+        private float val;
+        private Node[] nodes = null;
+        private Node superNode = null;
+        private MoveMent move = null;
 
         public Node(float value)
         {
-            this.Val = value;
-            this.Nodes = null;
+            this.val = value;
+            this.nodes = null;
         }
         //Make a Node filled with Nodes and a value
         public Node(float value, Node[] nodes)
         {
-            this.Val = value;
-            this.Nodes = nodes;
+            this.val = value;
+            this.nodes = nodes;
         }
 
 
@@ -44,7 +44,7 @@ namespace NodeSpace {
         {
             get
             {
-                return _nodes;
+                return nodes;
             }
         }
         public Node SuperNode 
@@ -54,7 +54,7 @@ namespace NodeSpace {
                 return superNode; 
             } 
         }
-        public Move Move 
+        public MoveMent Move 
         { 
             get 
             { 
@@ -65,13 +65,10 @@ namespace NodeSpace {
         {
             get
             {
-                return _val;
+                return val;
             }
         }
 
     }
 
-    public class Tree{
-        
-    }
 }
