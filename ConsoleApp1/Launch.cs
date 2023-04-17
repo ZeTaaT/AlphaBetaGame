@@ -28,6 +28,7 @@ namespace Launcher
                 board.placePiece(new MoveAbles(pawnMoves, 1, '↑', true), x, 6);
                 board.placePiece(new MoveAbles(pawnMoves, 1, '↓', false), x, 1);
             }
+            board.placePiece(new MoveAbles(pawnMoves, 1, '↓', false), , 1);
 
             Game game = new Game(1000, board, true);
             Algorithm algorithm = new Algorithm(game.getWinPoint());
