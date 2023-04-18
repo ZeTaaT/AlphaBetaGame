@@ -10,7 +10,6 @@ namespace Objects {
     public class Board {
 
         private int length, heigth;
-        private float postionVal, pieceVal; //Coeficients that will determine the value of moves
         private Tile[,] area;
 
 
@@ -39,11 +38,11 @@ namespace Objects {
         {
             return heigth;
         }
-        public Tile getTile(int x, int y)
+        public Tile getTile(in int x, in int y)
         {
             return area[x, y];
         }
-        public MoveAbles getPiece(int x, int y)
+        public MoveAbles getPiece(in int x, in int y)
         {
             return area[x,y].getPiece();
         }
@@ -65,17 +64,17 @@ namespace Objects {
             return piecesTotal;
 
         }
-        public void placePiece(MoveAbles piece, int x, int y) 
+        public void placePiece(in MoveAbles piece, in int x, in int y) 
         {
             area[x,y].setPiece(piece);
         }
-        public void movePiece((int, int) destination, (int,int) location)
+        public void movePiece(in (int, int) destination, in (int,int) location)
         {
             MoveAbles piece = getPiece(location.Item1, location.Item2);
             area[location.Item1, location.Item2].setPiece(null);
             placePiece(piece, destination.Item1, destination.Item2);    
         }
-        public bool isEmpty(int x, int y) 
+        public bool isEmpty(in int x, in int y) 
         {
             return area[x,y].IsEmpty;
         }
@@ -96,7 +95,7 @@ namespace Objects {
         {
             return piece;
         }
-        public void setPiece(MoveAbles piece)
+        public void setPiece(in MoveAbles piece)
         {
             this.piece = piece;
         }

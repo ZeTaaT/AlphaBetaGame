@@ -15,6 +15,7 @@ namespace GameSpace {
     public class Game {
             
         private Board board;
+        private float postionVal, pieceVal; //Coeficients that will determine the value of moves
         private bool playerTurn;
         private float winPoint = 10000; //Should be Total points for all pieces
 
@@ -23,8 +24,7 @@ namespace GameSpace {
             this.board = board;
             this.playerTurn = playerTurn;
             winPoint = calcWinPoint();
-            showBoard();
-            
+            Launcher();
         }
         public Game(int magic, Board board, bool playerTurn, float winPoint)
         {
@@ -35,35 +35,88 @@ namespace GameSpace {
             showBoard();
 
         }
-        public void showAllMoves() //Shows all possible moves
+        public void Launcher ()
+        {
+            bool gameEnd = false;
+            Algorithm algorithm = new Algorithm(getWinPoint());
+
+            while (!gameEnd)
+            {
+                showBoard();
+                List<MoveMent> moveMents = calcAllMoves(false);
+                showAllMoves(moveMents);
+                bool validMove = false;
+                (int, int) location = (0, 0);
+                (int, int) destination = (0, 0);
+
+                if (playerTurn) 
+                { 
+                    while (!validMove) 
+                    {
+                        Console.Write("Input location X axes: ");
+                        int inputLocX = Int32.Parse(Console.ReadLine());
+                        Console.Write("Input location Y axes: ");
+                        int inputLocY = Int32.Parse(Console.ReadLine());
+                        location = (inputLocX, inputLocY);
+                        Console.WriteLine("Location: " + location.ToString());
+                        Console.Write("Input location X axes: ");
+                        int inputDestX = Int32.Parse(Console.ReadLine());
+                        Console.Write("Input location Y axes: ");
+                        int inputDestY = Int32.Parse(Console.ReadLine());
+                        destination = (inputDestX, inputDestY);
+                        Console.WriteLine("Destination: " + destination.ToString());
+
+                        validMove = canMove(location, destination, moveMents);
+                    }
+                    board.movePiece(destination, location);
+                }
+                else
+                {
+
+                }
+            }
+
+        }
+        private bool canMove((int, int) location, (int, int) destination, List<MoveMent> moveMents)
+        {
+            foreach (MoveMent m in moveMents)
+            {
+                if (m.getLocation() == location && m.getDestination() == destination)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private List<MoveMent> calcAllMoves(in bool player)
         {
             List<MoveMent> moveMents = new List<MoveMent>();
             for (int y = 0; y < board.getHeigth(); y++)
             {
-                for (int x = 0;x < board.getLength();x++) 
+                for (int x = 0; x < board.getLength(); x++)
                 {
-                    if (!board.isEmpty(x, y))
+                    if (!board.isEmpty(x, y) && board.getPiece(x, y).isPlayerPiece() == player)
                     {
-                        moveMents = calcPieceMoves(x, y);
-                        foreach(MoveMent m in moveMents)
-                        {
-                            Console.WriteLine(m);
-                        }
-                    }
-                    else
-                    {
-
+                        moveMents = moveMents.Concat(calcPieceMoves(x, y)).ToList();
                     }
                 }
             }
+            return moveMents;
         }
-        private (int, int) calcDest((int, int) horizVert, (int, int) position, int range)
+        public void showAllMoves(in List<MoveMent> moveMents) //Shows all possible moves
+        {
+            foreach (MoveMent m in moveMents)
+            {
+                Console.WriteLine(m);
+            }
+        }
+        private (int, int) calcDest(in (int, int) horizVert, in (int, int) position, in int range)
         {
             (int, int) destination = (position.Item1 +
                 horizVert.Item1 * range, position.Item2 + horizVert.Item2 * range);
             return destination;
         }
-        private float calcMoveVal((int, int) destination) //Calculate the value of the Movement
+        private float calcMoveVal(in (int, int) destination) //Calculate the value of the Movement
         {
             int reach = 0;
             float val = 0;
@@ -79,11 +132,11 @@ namespace GameSpace {
 
             return val;
         }
-        private MoveMent createMovement((int, int) position, (int, int) destination, float val)
+        private MoveMent createMovement(in (int, int) position, in (int, int) destination, in float val)
         {
             return new MoveMent(position, destination, new (int, int)[1] { destination }, val);
         }
-        private MoveMent complexMovement(Move move, (int, int) position, Move[] moves, (int, int) destination)
+        private MoveMent complexMovement(in Move move, in (int, int) position, in Move[] moves, in (int, int) destination)
         {
             float val = 0;
             (int, int) target = (position.Item1 + move.getTarget().Item1,
@@ -110,8 +163,7 @@ namespace GameSpace {
             }
 
         }
-       
-        private List<MoveMent> calcPieceMoves(int x, int y)
+        private List<MoveMent> calcPieceMoves(in int x, in int y)
         {
             List<MoveMent> moveMents = new List<MoveMent>();
             Move[] moves = board.getPiece(x, y).getMoves();
@@ -137,24 +189,27 @@ namespace GameSpace {
                         {
                             moveMents.Add(createMovement((x, y), dest, calcMoveVal(dest))); // Create Movement.
                         }
+
+                        if (!board.isEmpty(dest.Item1, dest.Item2))
+                        {
+                            valid = false;
+                        }
                     }
-                    else
-                    {
-                        break;
-                    }
+
+                    
+
                     range++;
                 }
                 
             }
-            calcMoveVal(calcDest(moves[0].getHorizVert(), (x, y), 1));
 
             return moveMents;
         }
-        private bool inRange((int,int) dest)
+        private bool inRange(in (int,int) dest)
         {
             return dest.Item1 <= board.getLength() - 1 && dest.Item1 >= 0 && dest.Item2 <= board.getHeigth() - 1 && dest.Item2 >= 0;
         }
-        private bool validMove(Move move, (int, int) position, (int, int) dest)
+        private bool validMove(in Move move, in (int, int) position, in (int, int) dest)
         {
             bool valid = true;
 
@@ -166,7 +221,8 @@ namespace GameSpace {
                     {
                         valid = false;
                     }
-                    else if (board.getPiece(dest.Item1, dest.Item2).isPlayerPiece() == playerTurn) //A piece cannot take it's own allies.
+                    else if (board.getPiece(dest.Item1, dest.Item2).isPlayerPiece() == 
+                             board.getPiece(position.Item1, position.Item2).isPlayerPiece()) //A piece cannot take it's own allies.
                     {
                         valid = false;
                     }
@@ -188,17 +244,17 @@ namespace GameSpace {
         }
         public void showBoard()  
         {
-            for (int y = 0; y < board.getLength(); y++)
+            for (int y = board.getLength() - 1; y >= 0; y--)
             {
                 for (int x = 0; x < board.getHeigth(); x++)
                 {
                     if(board.getPiece(x, y) != null)
                     {
-                        Console.Write(board.getPiece(x, y).getType());
+                        Console.Write(board.getPiece(x, y).getType() + " ");
                     }
                     else
                     {
-                        Console.Write('-');
+                        Console.Write("-- ");
                     }
                 }
                 Console.WriteLine();
