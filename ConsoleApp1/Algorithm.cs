@@ -35,7 +35,7 @@ namespace MainStuff
         {
             Node eva; // The value of the move (Need to implement method of calculating the value of the move)
             
-            if (depth == 0 | root.Nodes == null)
+            if (depth == 0 | root.Nodes == null) //change
             {
                 checkMove++;
                 Console.WriteLine(root.Val);
@@ -47,9 +47,10 @@ namespace MainStuff
 
                 Node maxEva = new Node(negInf, null);
 
-                foreach (Node node in root.Nodes)
+                foreach (Node node in root.Nodes) //change
                 {
                     eva = alphaBeta(node, depth - 1, alpha, beta, false);
+
                     maxEva = mathEva(maxEva, eva, true); // Highest evaluated pointage
                     alpha = Math.Max(alpha, maxEva.Val); // Highest valid evaluated pointage in whole tree
                     if (beta <= alpha)
