@@ -24,12 +24,13 @@ namespace Objects {
             this.range = range;
             this.horizVert = horizVert;
         }
-        public Move(int range, (int, int) horizVert, bool mover, bool destroyer)
+        public Move(int range, (int, int) horizVert, bool mover, bool destroyer, bool rush)
         {
             this.range = range;
             this.horizVert = horizVert;
             this.mover = mover;
             this.destroyer = destroyer;
+            this.rush = rush;
         }
         public Move(int range, (int, int) horizVert, (int, int) target, bool mover, bool destroyer, bool linkable)
         {
@@ -39,6 +40,11 @@ namespace Objects {
             this.mover = mover;
             this.destroyer = destroyer;
             this.linkable = linkable;
+        }
+        public void reverse()
+        {
+            horizVert = (-horizVert.Item1, -horizVert.Item2);
+            Console.WriteLine(horizVert);
         }
         public int Range
         {
@@ -88,7 +94,13 @@ namespace Objects {
 
             }
         }
-
+        public bool Rush
+        {
+            get
+            {
+                return rush;
+            }
+        }
 
     }
     public class MoveMent
@@ -97,6 +109,12 @@ namespace Objects {
         private (int, int)[] targets;
         private float val;
 
+        public MoveMent((int, int) location, (int, int) destination, (int, int) targets, float val)
+        {
+            this.destination = destination;
+            this.location = location;
+            this.targets = new (int, int)[] { targets };
+        }
         public MoveMent((int, int) location, (int, int) destination, (int, int)[] targets, float val)
         {
             this.destination = destination;
@@ -116,10 +134,18 @@ namespace Objects {
         {
             return targets;
         }
-        public float getVal()
+        public float Val
         {
-            return val;
+            get 
+            {
+                return val;
+            }
         }
+        public void setVal(float val) 
+        {
+            this.val = val;
+        }
+        
         public override string ToString()
         {
             string outTarget = "";

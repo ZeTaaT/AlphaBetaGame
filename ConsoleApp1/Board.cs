@@ -11,7 +11,7 @@ namespace Objects {
 
         private int length, heigth;
         private Tile[,] area;
-
+        private float postionCoef, pieceCoef; //Coeficients that will determine the value of moves
 
         public Board(int length, int heigth) {
             this.length = length;   
@@ -38,11 +38,11 @@ namespace Objects {
         {
             return heigth;
         }
-        public Tile getTile(in int x, in int y)
+        public Tile getTile( int x,  int y)
         {
             return area[x, y];
         }
-        public MoveAbles getPiece(in int x, in int y)
+        public MoveAbles getPiece( int x,  int y)
         {
             return area[x,y].getPiece();
         }
@@ -53,7 +53,6 @@ namespace Objects {
             {
                 for(int y = 0; y < heigth; y++)
                 {
-
                     if (area[x, y].getPiece() != null && area[x, y].getPiece().isPlayerPiece())
                     {
                         Console.WriteLine("Piece total " + piecesTotal);
@@ -73,45 +72,50 @@ namespace Objects {
             }
             else
             {
-                return createMovement((position.Item1, position.Item2), dest, calcMoveVal(dest));
+                return createMovement((position.Item1, position.Item2), dest, calcMoveVal(getPiece(position.Item1, position.Item2).isPlayerPiece() ,dest));
             }
 
         }
-        private bool validMove(in Move move, in (int, int) position, in (int, int) dest)
+        public bool validMove(Move move, (int, int) position, (int, int) dest) 
         {
-            bool valid = true;
-
-            if (inRange(dest))  //Not Outside the board. Within limits.
-            {
-                if (!(getTile(dest.Item1, dest.Item2).IsEmpty)) //When the destination is not empty
+                bool valid = true;
+                if ((getPiece(position.Item1, position.Item2).canRush() == false && move.Rush == true)) 
                 {
-                    if (!move.Destroyer) //A move that doesn't eat cannot replace a piece.
+                    return false;
+                }
+                
+
+                if (inRange(dest))  //Not Outside the board. Within limits.
+                {
+                    if (!(getTile(dest.Item1, dest.Item2).IsEmpty)) //When the destination is not empty
                     {
-                        valid = false;
+                        if (!move.Destroyer ) //A move that doesn't eat cannot replace a piece.
+                        {
+                            valid = false;
+                        }
+                        else if (getPiece(dest.Item1, dest.Item2).isPlayerPiece() ==
+                                 getPiece(position.Item1, position.Item2).isPlayerPiece()) //A piece cannot take it's own allies.
+                        {
+                            valid = false;
+                        }
                     }
-                    else if (getPiece(dest.Item1, dest.Item2).isPlayerPiece() ==
-                             getPiece(position.Item1, position.Item2).isPlayerPiece()) //A piece cannot take it's own allies.
-                    {   
-                        valid = false;
+                    else // When empty
+                    {
+                        if (!move.Mover) //A move that eat cannot replace a piece.
+                        {
+                            valid = false;
+                        }
                     }
                 }
-                else // When empty
+                else
                 {
-                    if (!move.Mover) //A move that eat cannot replace a piece.
-                    {
-                        valid = false;
-                    }
+                    valid = false;
                 }
-            }
-            else
-            {
-                valid = false;
-            }
-
-            return valid;
+                 
+                return valid;
+            
         }
-
-        public List<MoveMent> calcAllMoves(in bool player) //Board
+        public List<MoveMent> calcAllMoves(bool player) //Board
         {
             List<MoveMent> moveMents = new List<MoveMent>();
             for (int y = 0; y < getHeigth(); y++)
@@ -126,7 +130,7 @@ namespace Objects {
             }
             return moveMents;
         }
-        private List<MoveMent> calcPieceMoves(in int x, in int y)
+        private List<MoveMent> calcPieceMoves(int x, int y)
         {
             List<MoveMent> moveMents = new List<MoveMent>();
             Move[] moves = getPiece(x, y).getMoves();
@@ -150,7 +154,7 @@ namespace Objects {
                         }
                         else
                         {
-                            moveMents.Add(createMovement((x, y), dest, calcMoveVal(dest))); // Create Movement.
+                            moveMents.Add(createMovement((x, y), dest, calcMoveVal(getPiece(x, y).isPlayerPiece(), dest))); // Create Movement.
                         }
 
                         if (!isEmpty(dest.Item1, dest.Item2))
@@ -159,8 +163,6 @@ namespace Objects {
                         }
                     }
 
-
-
                     range++;
                 }
 
@@ -168,11 +170,53 @@ namespace Objects {
 
             return moveMents;
         }
-        private MoveMent createMovement(in (int, int) position, in (int, int) destination, in float val)
+        private int moveAmount(bool player)
+        {
+            int amount = 0;
+            for (int y = 0; y < getHeigth(); y++)
+            {
+                for (int x = 0; x < getLength(); x++)
+                {
+                    if (!isEmpty(x, y) && getPiece(x, y).isPlayerPiece() == player)
+                    {
+                        Move[] moves = getPiece(x, y).getMoves();
+
+                        foreach (Move move in moves)
+                        {
+
+                            bool valid = true;
+                            int range = 1;
+
+                            while (valid && range <= move.Range) //The move doesn't exceed it's range.
+                            {
+                                (int, int) dest = calcDest(move.getHorizVert(), (x, y), range); //Destination.
+                                valid = validMove(move, (x, y), dest); //Is move valid.
+
+                                if (valid) //If valid, create Movement, else ignore and move on to next move.
+                                {
+                                    amount++;
+
+                                    if (!isEmpty(dest.Item1, dest.Item2))
+                                    {
+                                        valid = false;
+                                    }
+                                }
+
+                                range++;
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return amount;
+        }
+        public MoveMent createMovement((int, int) position, (int, int) destination, float val)
         {
             return new MoveMent(position, destination, new (int, int)[1] { destination }, val);
         }
-        private MoveMent complexMovement(in Move move, in (int, int) position, in Move[] moves, in (int, int) destination)
+        private MoveMent complexMovement(Move move, (int, int) position, Move[] moves, (int, int) destination)
         {
             float val = 0;
             (int, int) target = (position.Item1 + move.getTarget().Item1,
@@ -186,44 +230,49 @@ namespace Objects {
 
             return new MoveMent(position, destination, targets.ToArray(), val);
         }
-        private float calcMoveVal(in (int, int) destination) //Calculate the value of the Movement
+        public float calcMoveVal(bool player, (int, int) destination) //Calculate the value of the Movement
         {
-            int reach = 0;
+            float reach = 0;
             float val = 0;
+
             if (!(getTile(destination.Item1, destination.Item2).IsEmpty))
             {
-                val = getPiece(destination.Item1, destination.Item2).getValue();
+                //val = getPiece(destination.Item1, destination.Item2).getValue() * 10;
+                reach = moveAmount(player);
+            }
+            else
+            {
+                reach = moveAmount(player);
             }
 
-
-
-
-
-
-            return val;
+            return val + reach;
         }
-        private (int, int) calcDest(in (int, int) horizVert, in (int, int) position, in int range)
+        public (int, int) calcDest((int, int) horizVert, (int, int) position, int range)
         {
             (int, int) destination = (position.Item1 +
                 horizVert.Item1 * range, position.Item2 + horizVert.Item2 * range);
             return destination;
         }
-        public void placePiece(in MoveAbles piece, in int x, in int y) 
+        public void placePiece(MoveAbles piece, int x, int y) 
         {
             area[x,y].setPiece(piece);
         }
-        public void movePiece(in (int, int) destination, in (int,int) location)
+        public void movePiece((int, int) destination, (int,int) location)
         {
             MoveAbles piece = getPiece(location.Item1, location.Item2);
             area[location.Item1, location.Item2].setPiece(null);
             placePiece(piece, destination.Item1, destination.Item2);    
         }
-        private bool inRange(in (int, int) dest)
+        public void noRush((int, int) destination)
+        {
+            getPiece(destination.Item1, destination.Item2).rushed();
+        }
+        private bool inRange((int, int) dest)
         {
             return dest.Item1 <= getLength() - 1 && dest.Item1 >= 0 && dest.Item2 <= getHeigth() - 1 && dest.Item2 >= 0;
         }
 
-        public bool isEmpty(in int x, in int y) 
+        public bool isEmpty(int x, int y) 
         {
             return area[x,y].IsEmpty;
         }
@@ -244,7 +293,7 @@ namespace Objects {
         {
             return piece;
         }
-        public void setPiece(in MoveAbles piece)
+        public void setPiece(MoveAbles piece)
         {
             this.piece = piece;
         }

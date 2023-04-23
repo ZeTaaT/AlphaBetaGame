@@ -8,44 +8,16 @@ using System.Threading.Tasks;
 namespace NodeSpace {
     public class Node {
 
-        private float val;
-        private Node[] nodes = null;
         private Node superNode = null;
         private MoveMent move = null;
-
-        public Node(float value)
+        public Node(MoveMent move)
         {
-            this.val = value;
-            this.nodes = null;
+            this.move = move;
         }
-        //Make a Node filled with Nodes and a value
-        public Node(float value, Node[] nodes)
+        public Node(MoveMent move, Node superNode)
         {
-            this.val = value;
-            this.nodes = nodes;
-        }
-
-
-        //Make a (presumebly) Leaf Node (Ending node)
-        public static explicit operator Node(Node[] nodes)
-        {
-            Node node = new Node(0, nodes);
-            return node;
-        }
-        public static explicit operator Node[](Node node)
-        {
-            Node[] nodes = { new Node(node.Val) };
-            return nodes;
-        }
-
-
-
-        public Node[] Nodes
-        {
-            get
-            {
-                return nodes;
-            }
+            this.superNode = superNode;
+            this.move = move;
         }
         public Node SuperNode 
         { 
@@ -65,7 +37,7 @@ namespace NodeSpace {
         {
             get
             {
-                return val;
+                return move.Val;
             }
         }
 

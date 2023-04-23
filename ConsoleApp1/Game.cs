@@ -15,7 +15,6 @@ namespace GameSpace {
     public class Game {
             
         private Board board;
-        private float postionVal, pieceVal; //Coeficients that will determine the value of moves
         private bool playerTurn;
         private float winPoint = 10000; //Should be Total points for all pieces
 
@@ -39,17 +38,19 @@ namespace GameSpace {
         {
             bool gameEnd = false;
             Algorithm algorithm = new Algorithm(getWinPoint());
+            Console.WriteLine(getWinPoint());
             while (!gameEnd)
             {
                 showBoard();
-                List<MoveMent> moveMents = board.calcAllMoves(false);
-                showAllMoves(moveMents);
+                Console.ReadLine();
                 bool validMove = false;
                 (int, int) location = (0, 0);
                 (int, int) destination = (0, 0);
 
                 if (playerTurn) 
-                { 
+                {
+                    List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
+                    showAllMoves(moveMents);
                     while (!validMove) 
                     {
                         Console.Write("Input location X axes: ");
@@ -72,7 +73,14 @@ namespace GameSpace {
                 else
                 {
 
+                    MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), float.PositiveInfinity);
+                    movement = algorithm.alphaBeta(board, movement, 1, float.NegativeInfinity, float.PositiveInfinity, false);
+                    board.movePiece(movement.getDestination(), movement.getLocation());
+                    Console.WriteLine(movement.getDestination() + " " + movement.getLocation() + " " + movement.Val + " " + algorithm.getCheckMove());
+                    
                 }
+                board.noRush(destination);
+
                 playerTurn = !playerTurn;
             }
 
