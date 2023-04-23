@@ -69,17 +69,20 @@ namespace GameSpace {
                         validMove = canMove(location, destination, moveMents);
                     }
                     board.movePiece(destination, location);
+                    board.noRush(destination);
                 }
                 else
                 {
-
-                    MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), float.PositiveInfinity);
-                    movement = algorithm.alphaBeta(board, movement, 1, float.NegativeInfinity, float.PositiveInfinity, false);
-                    board.movePiece(movement.getDestination(), movement.getLocation());
+                    List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
+                    showAllMoves(moveMents);
+                    Console.ReadLine();
+                    MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), float.NegativeInfinity);
+                    movement = algorithm.alphaBeta(board, movement, 3, float.NegativeInfinity, float.PositiveInfinity, false);
                     Console.WriteLine(movement.getDestination() + " " + movement.getLocation() + " " + movement.Val + " " + algorithm.getCheckMove());
-                    
+                    board.movePiece(movement.getDestination(), movement.getLocation());
+
+                    board.noRush(movement.getDestination());
                 }
-                board.noRush(destination);
 
                 playerTurn = !playerTurn;
             }

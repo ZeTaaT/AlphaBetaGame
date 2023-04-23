@@ -170,7 +170,7 @@ namespace Objects {
 
             return moveMents;
         }
-        private int moveAmount(bool player)
+        public int moveAmount(bool player)
         {
             int amount = 0;
             for (int y = 0; y < getHeigth(); y++)
@@ -194,7 +194,14 @@ namespace Objects {
 
                                 if (valid) //If valid, create Movement, else ignore and move on to next move.
                                 {
-                                    amount++;
+                                    if (player)
+                                    {
+                                        amount++;
+                                    }
+                                    else
+                                    {
+                                        amount--;
+                                    }
 
                                     if (!isEmpty(dest.Item1, dest.Item2))
                                     {
@@ -237,7 +244,7 @@ namespace Objects {
 
             if (!(getTile(destination.Item1, destination.Item2).IsEmpty))
             {
-                //val = getPiece(destination.Item1, destination.Item2).getValue() * 10;
+                val = getPiece(destination.Item1, destination.Item2).getValue() * 10;
                 reach = moveAmount(player);
             }
             else

@@ -13,8 +13,6 @@ namespace MainStuff
 {
     public class Algorithm
     {
-        private float negInf = float.NegativeInfinity;
-        private float posInf = float.PositiveInfinity;
 
         private float maxPoint = 100; //Extreme cutting
         private float minPoint = -100; //Extreme cutting
@@ -40,15 +38,16 @@ namespace MainStuff
             {
                 if((maximizingPlayer && movement.Val > maxPoint) | (!maximizingPlayer && movement.Val < minPoint))
                 {
-                    Console.WriteLine("AAAA");
+                    Console.WriteLine("NOT DEPTH 0");
                 }
+                movement.setVal(movement.Val + root.moveAmount(!maximizingPlayer));
                 checkMove++;
                 return movement;
             }
 
             if (maximizingPlayer)  // for Player  
             {
-                MoveMent maxEva = new MoveMent((0, 0), (0, 0), (-1, -1), negInf);
+                MoveMent maxEva = null;
                 //HAVE BOARD WITH A LIST OF PIECES AND IT'S POSITIONS for better efficiency
                 for (int y = 0; y < root.getHeigth(); y++)
                 {
@@ -86,7 +85,9 @@ namespace MainStuff
                                                 board.movePiece(dest, (x, y));
                                                 eva = alphaBeta(board, moveMent, depth - 1, alpha, beta, false);
 
-                                                moveMent.setVal(val + eva.Val);
+                                                moveMent.setVal(eva.Val);
+
+                                                Console.WriteLine(maxEva?.Val + " max " + eva.Val + " " + moveMent.Val);
 
                                                 maxEva = mathEva(maxEva, moveMent, true); // Highest evaluated pointage
                                                 alpha = Math.Max(alpha, maxEva.Val); // Highest valid evaluated pointage in whole tree
@@ -99,7 +100,9 @@ namespace MainStuff
                                                 board.movePiece(dest, (x, y));
                                                 eva = alphaBeta(board, moveMent, depth - 1, alpha, beta, false);
 
-                                                moveMent.setVal(val + eva.Val);
+                                                moveMent.setVal(eva.Val);
+
+                                                Console.WriteLine(maxEva?.Val + " maxS " + eva.Val + " " + moveMent.Val);
 
                                                 maxEva = mathEva(maxEva, moveMent, true); // Highest evaluated pointage
                                                 alpha = Math.Max(alpha, maxEva.Val); // Highest valid evaluated pointage in whole tree
@@ -136,7 +139,7 @@ namespace MainStuff
             }
             else
             {
-                MoveMent minEva = new MoveMent((0, 0), (0, 0), (-1, -1), posInf);
+                MoveMent minEva = null;
 
                 for (int y = 0; y < root.getHeigth(); y++)
                 {
@@ -174,8 +177,9 @@ namespace MainStuff
                                                 board.movePiece(dest, (x, y));
                                                 eva = alphaBeta(board, moveMent, depth - 1, alpha, beta, true);
 
-                                                moveMent.setVal(val + eva.Val);
+                                                moveMent.setVal(eva.Val);
 
+                                                Console.WriteLine(minEva?.Val + " min " + eva.Val + " " + moveMent.Val);
                                                 minEva = mathEva(minEva, moveMent, false); // Highest evaluated pointage
                                                 beta = Math.Min(beta, minEva.Val); // Highest valid evaluated pointage in whole tree
 
@@ -184,11 +188,13 @@ namespace MainStuff
                                             else
                                             {
                                                 MoveAbles piece = board.getPiece(dest.Item1, dest.Item2);
+
                                                 board.movePiece(dest, (x, y));
                                                 eva = alphaBeta(board, moveMent, depth - 1, alpha, beta, true);
 
-                                                moveMent.setVal(val + eva.Val);
+                                                moveMent.setVal(eva.Val);
 
+                                                Console.WriteLine(minEva?.Val + " minS " + eva.Val + " " + moveMent.Val);
                                                 minEva = mathEva(minEva, moveMent, false); // Highest evaluated pointage
                                                 beta = Math.Min(beta, minEva.Val); // Highest valid evaluated pointage in whole tree
 
@@ -221,6 +227,14 @@ namespace MainStuff
         }
         private MoveMent mathEva(MoveMent move1, MoveMent move2, bool max)
         {
+            if(move1== null)
+            {
+                return move2;
+            }
+            else if(move2== null)
+            {
+                return move1;
+            }
             if (max) {
                 if (move1.Val >= move2.Val) {
                     return move1;
