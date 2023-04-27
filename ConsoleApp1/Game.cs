@@ -18,103 +18,109 @@ namespace GameSpace {
         private bool playerTurn;
         private float winPoint = 10000; //Should be Total points for all pieces
 
-        public Game(int magic, Board board, bool playerTurn) {
-            int magic_Num = magic;
+        public Game((float, float) magic, Board board, bool playerTurn) {
             this.board = board;
             this.playerTurn = playerTurn;
             winPoint = calcWinPoint();
-            Launcher();
+            this.board.setCoef(magic.Item1, magic.Item2);
         }
-        public Game(int magic, Board board, bool playerTurn, float winPoint)
+        public Game((float, float) magic, Board board, bool playerTurn, float winPoint)
         {
-            int magic_Num = magic;
             this.board = board;
             this.playerTurn = playerTurn;
             this.winPoint = winPoint;
-            showBoard();
-
+            this.board.setCoef(magic.Item1, magic.Item2);
         }
-        public void Launcher ()
+        public void Launcher (int diff)
         {
             bool gameEnd = false;
             Algorithm algorithm = new Algorithm(getWinPoint());
-            Console.WriteLine(getWinPoint());
+            
             while (!gameEnd)
             {
-                showBoard();
+                board.clearZones();
+                showBoard(board);
                 Console.ReadLine();
                 bool validMove = false;
-                (int, int) location = (0, 0);
-                (int, int) destination = (0, 0);
 
-                if (playerTurn) 
+                MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), 0);
+                List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
+                showAllMoves(moveMents);
+                if (moveMents.Count == 0)
                 {
-                    List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
-                    showAllMoves(moveMents);
+                    gameEnd = true;
+                    Console.WriteLine("It's a tie");
+                    break;
+                }
+                if (playerTurn)
+                {
+                    
                     while (!validMove) 
                     {
-                        Console.Write("Input location X axes: ");
-                        int inputLocX = Int32.Parse(Console.ReadLine());
-                        Console.Write("Input location Y axes: ");
-                        int inputLocY = Int32.Parse(Console.ReadLine());
-                        location = (inputLocX, inputLocY);
-                        Console.WriteLine("Location: " + location.ToString());
-                        Console.Write("Input location X axes: ");
-                        int inputDestX = Int32.Parse(Console.ReadLine());
-                        Console.Write("Input location Y axes: ");
-                        int inputDestY = Int32.Parse(Console.ReadLine());
-                        destination = (inputDestX, inputDestY);
-                        Console.WriteLine("Destination: " + destination.ToString());
 
-                        validMove = canMove(location, destination, moveMents);
+                        Console.Write("Which move do you want to use? : ");
+                        int moveNum = Int32.Parse(Console.ReadLine());
+
+                        if(!(moveNum > moveMents.Count | 0 > moveNum))
+                        {
+                            validMove= true;
+                            movement = moveMents.ToArray()[moveNum];
+                        }
                     }
-                    board.movePiece(destination, location);
-                    board.noRush(destination);
+                    
                 }
                 else
                 {
-                    List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
-                    showAllMoves(moveMents);
-                    Console.ReadLine();
-                    MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), float.NegativeInfinity);
-                    movement = algorithm.alphaBeta(board, movement, 3, float.NegativeInfinity, float.PositiveInfinity, false);
-                    Console.WriteLine(movement.getDestination() + " " + movement.getLocation() + " " + movement.Val + " " + algorithm.getCheckMove());
-                    board.movePiece(movement.getDestination(), movement.getLocation());
+                    var timer = new Stopwatch();
+                    timer.Start();
 
-                    board.noRush(movement.getDestination());
+                    movement = algorithm.alphaBeta(board, movement, diff, float.NegativeInfinity, float.PositiveInfinity, false);
+                    Console.WriteLine(" dest: " + movement.getDestination() + " loca: " + movement.getLocation() + " " + movement.Val + " " + algorithm.getCheckMove() + " " + algorithm.getCuts());
+                    
+                    timer.Stop();
+                    TimeSpan timeTaken = timer.Elapsed;
+                    Console.WriteLine("Time taken: " + timeTaken.ToString(@"m\:ss\.fff"));
                 }
+
+                if (movement.getTargets() != null)
+                {
+                    foreach ((int, int) target in movement.getTargets())
+                    {
+                        board.placePiece(null, target.Item1, target.Item2);
+                    }
+                }
+                board.movePiece(movement.getDestination(), movement.getLocation());
+                Console.WriteLine(movement.getCompMove());
+                if (movement.hasCompMove())
+                {
+                    board.movePiece(movement.getCompMove().getDestination(), movement.getCompMove().getLocation());
+                }
+
+
+                board.noRush(movement.getDestination());
 
                 playerTurn = !playerTurn;
             }
 
         }
-        private bool canMove((int, int) location, (int, int) destination, List<MoveMent> moveMents)
-        {
-            foreach (MoveMent m in moveMents)
-            {
-                if (m.getLocation() == location && m.getDestination() == destination)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }    
         public void showAllMoves(in List<MoveMent> moveMents) //Shows all possible moves
         {
+            int count = 0;
             foreach (MoveMent m in moveMents)
             {
-                Console.WriteLine(m);
+                Console.WriteLine("move " + count + " " + m);
+                count++;
             }
         }
-        public void showBoard() 
+        public static void showBoard(Board board) 
         {
             for (int y = board.getLength() - 1; y >= 0; y--)
             {
                 for (int x = 0; x < board.getHeigth(); x++)
                 {
-                    if(board.getPiece(x, y) != null)
+                    if(board.getPiece((x, y)) != null)
                     {
-                        Console.Write(board.getPiece(x, y).getType() + " ");
+                        Console.Write(board.getPiece((x, y)).getType() + " ");
                     }
                     else
                     {

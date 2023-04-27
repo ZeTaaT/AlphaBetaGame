@@ -15,6 +15,7 @@ namespace Objects
         private string type; //Board representation
         private bool playerPiece; //Is it a player or the bot
         private bool rush = true;
+        private MoveAbles[] transformables = null;
 
         public MoveAbles(Move[] moves, float value, string type, bool playerPiece) { 
             this.moves = moves;
@@ -22,17 +23,15 @@ namespace Objects
             this.type = type;
             this.playerPiece = playerPiece;
         }
-
-        private Move[] reverseMoves(Move[] moves)
+        public MoveAbles(Move[] moves, float value, string type, bool playerPiece, MoveAbles[] transformables)
         {
-            Move[] allMoves = new Move[moves.Length];
-            for (int i = 0; i < moves.Length; i++)
-            {
-                moves[i].reverse();
-                allMoves[i] = moves[i];
-            }
-            return allMoves;
+            this.moves = moves;
+            this.value = value;
+            this.type = type;
+            this.playerPiece = playerPiece;
+            this.transformables = transformables;
         }
+
         public Move[] getMoves() 
         { 
             return moves;
@@ -49,14 +48,21 @@ namespace Objects
         {
             return playerPiece;
         }
+        public bool isTransformable() 
+        {
+            return transformables != null;
+        }
         public void rushed()
         {
             rush = false;
+        }
+        public void setRush(bool rush)
+        {
+            this.rush = rush;
         }
         public bool canRush()
         {
             return rush;
         }
     }
-
 }
