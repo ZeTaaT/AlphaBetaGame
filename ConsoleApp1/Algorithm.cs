@@ -101,7 +101,6 @@ namespace MainStuff
                                             MoveMent moveMent = board.createMovement((x, y), dest, val);
                                             bool rush = board.getPiece((x, y)).canRush();
 
-                                            board.getPiece((x, y)).setRush(rush);
                                             if (board.isEmpty(dest.Item1, dest.Item2))
                                             {
                                                 if (move.getCompMove().HasValue)
@@ -130,7 +129,6 @@ namespace MainStuff
                                                 }
                                                 else
                                                 {
-                                                    board.getPiece((x, y)).setRush(rush);
                                                     board.movePiece(dest, (x, y));
 
                                                     eva = alphaBeta(board, moveMent, depth - 1, alpha, beta, false);
