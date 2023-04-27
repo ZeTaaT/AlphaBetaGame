@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using MainStuff;
-using NodeSpace;
 using Objects;
 
 namespace GameSpace {
@@ -45,7 +44,6 @@ namespace GameSpace {
 
                 MoveMent movement = new MoveMent((0, 0), (0, 0), (0, 0), 0);
                 List<MoveMent> moveMents = board.calcAllMoves(playerTurn);
-                showAllMoves(moveMents);
                 if (moveMents.Count == 0)
                 {
                     gameEnd = true;
@@ -55,6 +53,7 @@ namespace GameSpace {
                 if (playerTurn)
                 {
                     
+                    showAllMoves(moveMents);
                     while (!validMove) 
                     {
 

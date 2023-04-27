@@ -47,7 +47,6 @@
     <Compile Include="Game.cs" />
     <Compile Include="Launch.cs" />
     <Compile Include="Moves.cs" />
-    <Compile Include="Node.cs" />
     <Compile Include="Algorithm.cs" />
     <Compile Include="MoveAbles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
